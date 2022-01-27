@@ -7,6 +7,7 @@ const abi = contract.abi;
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState(null);
+  const [amountMatic, setAmountMatic] = useState("");
 
   const checkWalletIsConnected = async () => { 
       const {ethereum} = window;
@@ -19,7 +20,7 @@ function App() {
       }
 
       const accounts = await ethereum.request({method: 'eth_accounts'});
-      console.log(accounts)
+
       if (accounts.length !== 0) {
           const account = accounts[0];
           console.log("Found an authorized account: ", account);
@@ -46,6 +47,10 @@ function App() {
   }
 
   const mintNftHandler = () => { }
+  const stakeMaticAction = () => {
+      console.log(amountMatic);
+      console.log(typeof(amountMatic))
+  }
 
   const connectWalletButton = () => {
     return (
@@ -55,11 +60,54 @@ function App() {
     )
   }
 
+  const stakeMaticButton = () => {
+    return (
+        <button onClick={stakeMaticAction} className="cta-button stake-matic-button">
+            Stake MATIC
+        </button>
+    )
+  }
+
+  const disabledStakedMaticButton = () => {
+    return (
+        <button disabled className="cta-button disabled-stake-matic-button">
+            Stake MATIC
+        </button>
+    )
+  }
+
+  const renderMaticStakeInputField = () => {
+      if (Number(amountMatic) <= 0) {
+          return disabledStakedMaticButton()
+      }
+      else {
+          return stakeMaticButton()
+      }
+  } 
+
   const stakeBox = () => {
     return (
-      <button onClick={mintNftHandler} className='cta-button mint-nft-button'>
-        Ready to continue later!
-      </button>
+      <>
+        <div className="stake-box">
+            <div>
+                <input
+                    className="token-input-amount"
+                    type="number"
+                    placeholder="Enter MATIC to stake"
+                    onChange={(e) => setAmountMatic(e.target.value)}
+                    value={amountMatic}
+                />
+            </div>
+            
+            {renderMaticStakeInputField()}
+
+            <p>User MATIC Staked: 10</p>
+            <p>Total MATIC Staked: 20</p>
+        </div>
+        {/* <button onClick={mintNftHandler} className='cta-button mint-nft-button'>
+            Ready to continue later!
+        </button> */}
+      </>
     )
   }
 

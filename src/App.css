@@ -17,6 +17,35 @@
     background: rgb(32, 129, 226);
 }
 
+.stake-box {
+    margin: 0 auto;
+    width: 75%;
+    height: 15rem;
+    /* width: 5em; */
+    border-style: solid;
+    border-radius: 12px;
+    border-color: black;
+}
+
+.stake-matic-button {
+    background: orange;
+}
+
+.disabled-stake-matic-button {
+    background: gray;
+    cursor: no-drop;
+}
+
+.token-input-amount {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 15px;
+    border-radius: 12px;
+    /* min-width: 200px; */
+    font-size: 18px;
+    text-align: center;
+}
+
 .mint-nft-button {
     background: orange;
 }
