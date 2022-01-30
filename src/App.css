@@ -1,6 +1,6 @@
 .main-app {
     text-align: center;
-    margin: 100px;
+    margin: 75px;
 }
 
 .cta-button {
@@ -18,9 +18,10 @@
 }
 
 .stake-box {
+    text-align: center;
     margin: 0 auto;
     width: 75%;
-    height: 15rem;
+    /* height: 15rem; */
     /* width: 5em; */
     border-style: solid;
     border-radius: 12px;
@@ -48,4 +49,12 @@
 
 .mint-nft-button {
     background: orange;
+}
+
+.remove-margin {
+    margin: 0;
+}
+
+.remove-margin-bottom {
+    margin-bottom: 0;
 }
