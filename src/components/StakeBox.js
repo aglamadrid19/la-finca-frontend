@@ -2,12 +2,12 @@ import React, {useState, useEffect} from 'react'
 import {ethers} from 'ethers'
 
 const StakeBox = () => {
+
+    const WMATICContract = "0x384c3246F5888baa90F9835cd62dED5dD562a146"
 	
     const [defaultAccount, setDefaultAccount] = useState("");
     const [accountMaticBalance, setAccountMaticBalance] = useState("")
 	const [stakeMaticAmount, setStakeMaticAmount] = useState("")
-    const [providerWeb3, setProviderWeb3] = useState(null)
-    const [signerWeb3, setSignerWeb3] = useState(null)
 
     const checkWalletIsConnected = async () => { 
         const {ethereum} = window;
@@ -20,25 +20,25 @@ const StakeBox = () => {
         }
     
         const accounts = await ethereum.request({method: 'eth_accounts'});
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        console.log(provider)
         
         // const balance = await provider.getBalance(defaultAccount)
     
         if (accounts.length !== 0) {
             const account = accounts[0];
             console.log("Found an authorized account: ", account);
-            setProviderWeb3(provider)
-            // setSignerWeb3(signer)
-            setDefaultAccount(account);
-            console.log(providerWeb3)
-            // console.log(signerWeb3)
-            // setAccountMaticBalance(balance);
+            
+            setDefaultAccount(account)
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            const signer = provider.getSigner()
+
+            const balanceBN = await provider.getBalance(await signer.getAddress())
+            const balance =  ethers.utils.formatEther(balanceBN)
+            
+            setAccountMaticBalance(balance)
         } else {
             alert("No authorized wallet found, please connect it");
         }
-
-        // Get Wallet Balance
     }
 
     const connectWalletHandler = async () => { 
@@ -50,12 +50,17 @@ const StakeBox = () => {
     
         try {
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+
+            setDefaultAccount(accounts[0]);
+
+            // GET ACCOUNT Balance
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
 
-            setDefaultAccount(accounts[0]);
-            setProviderWeb3(provider)
-            setSignerWeb3(signer)
+            const balanceBN = await provider.getBalance(await signer.getAddress())
+            const balance =  ethers.utils.formatEther(balanceBN)
+            
+            setAccountMaticBalance(balance)
 
             console.log("Found an account! Address: ", accounts[0]);
         } catch (err) {
@@ -126,7 +131,7 @@ const StakeBox = () => {
                 </div>
                 <div>
                     <h5 className="remove-margin-bottom">Wallet MATIC Balance</h5>
-                    <p className="remove-margin">{defaultAccount}</p>
+                    <p className="remove-margin">{accountMaticBalance}</p>
                 </div>
             </>
                 :
