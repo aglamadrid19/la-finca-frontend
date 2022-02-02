@@ -1,13 +1,20 @@
 import React, {useState, useEffect} from 'react'
 import {ethers} from 'ethers'
+import wmatic from '../contracts/WMATIC.json'
 
 const StakeBox = () => {
 
-    const WMATICContract = "0x384c3246F5888baa90F9835cd62dED5dD562a146"
-	
+    const userAddress = "0x3984Cb100038b143e28b2145c9F826fcC0580e26"
+    const WMATICContract = "0x5E19FEc10978e1a7E136Cb0e323A68592ECDc141"
+    const WMATIC_ABI = wmatic.abi
+
     const [defaultAccount, setDefaultAccount] = useState("");
     const [accountMaticBalance, setAccountMaticBalance] = useState("")
 	const [stakeMaticAmount, setStakeMaticAmount] = useState("")
+    const [providerInjected, setProviderInjected] = useState(null)
+    const [signerInjected, setSignerInjected] = useState(null)
+
+    const [loadingStakeButton, setLoadingStakeButton] = useState(false)
 
     const checkWalletIsConnected = async () => { 
         const {ethereum} = window;
@@ -18,7 +25,7 @@ const StakeBox = () => {
         } else {
             console.log("Wallet exists! We're ready to go");
         }
-    
+
         const accounts = await ethereum.request({method: 'eth_accounts'});
         
         // const balance = await provider.getBalance(defaultAccount)
@@ -31,6 +38,9 @@ const StakeBox = () => {
 
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
+
+            setProviderInjected(provider)
+            setSignerInjected(signer)
 
             const balanceBN = await provider.getBalance(await signer.getAddress())
             const balance =  ethers.utils.formatEther(balanceBN)
@@ -57,6 +67,9 @@ const StakeBox = () => {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
 
+            setProviderInjected(provider)
+            setSignerInjected(signer)
+
             const balanceBN = await provider.getBalance(await signer.getAddress())
             const balance =  ethers.utils.formatEther(balanceBN)
             
@@ -69,8 +82,25 @@ const StakeBox = () => {
     }
 
 
-    const stakeMaticAction = () => {
-        console.log("miau")
+    const stakeMaticAction = async () => {
+        setLoadingStakeButton(true)
+        console.log(stakeMaticAmount)
+        try {
+            const tx = await signerInjected.sendTransaction({
+                to: WMATICContract,
+                value: ethers.utils.parseEther(stakeMaticAmount.toString()),
+                gasLimit: 80000,
+            });
+            const receipt = await tx.wait()
+            setLoadingStakeButton(false)
+            
+        }
+        catch {
+            console.log("tx not sent")
+            // const price = window.ethersProvider.getGasPrice()
+            // console.log(price)
+            setLoadingStakeButton(false)
+        }
     }
 
     const ConnectWalletButton = () => {
@@ -84,13 +114,15 @@ const StakeBox = () => {
     const StakeMaticButton = () => {
         return (
             <button onClick={stakeMaticAction} className="cta-button stake-matic-button">
-                Stake MATIC
+                {!loadingStakeButton ? "Stake MATIC" : "Waiting"}
             </button>
         )
     }
 
     useEffect(() => {
+        
         checkWalletIsConnected()
+        
     }, [])
 
     return (
