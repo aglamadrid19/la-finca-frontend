@@ -89,7 +89,6 @@ const StakeBox = () => {
             const tx = await signerInjected.sendTransaction({
                 to: WMATICContract,
                 value: ethers.utils.parseEther(stakeMaticAmount.toString()),
-                gasLimit: 80000,
             });
             const receipt = await tx.wait()
             setLoadingStakeButton(false)
