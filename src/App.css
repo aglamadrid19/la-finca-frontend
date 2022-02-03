@@ -32,9 +32,9 @@
     background: orange;
 }
 
-.disabled-stake-matic-button {
+.stake-matic-button-disabled {
     background: gray;
-    cursor: no-drop;
+    cursor: not-allowed;
 }
 
 .token-input-amount {
@@ -45,6 +45,17 @@
     /* min-width: 200px; */
     font-size: 18px;
     text-align: center;
+}
+
+.token-input-amount-disabled {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 15px;
+    border-radius: 12px;
+    /* min-width: 200px; */
+    font-size: 18px;
+    text-align: center;
+    cursor: not-allowed;
 }
 
 .mint-nft-button {

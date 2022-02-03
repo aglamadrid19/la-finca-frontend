@@ -110,12 +110,29 @@ const StakeBox = () => {
         )
     }
 
+    const WaitingStakeMaticButton = () => {
+        return (
+            <button disabled onClick={stakeMaticAction} className="cta-button stake-matic-button-disabled">
+                {!loadingStakeButton ? "Stake MATIC" : "Waiting"}
+            </button>
+        )
+    }
+
     const StakeMaticButton = () => {
         return (
             <button onClick={stakeMaticAction} className="cta-button stake-matic-button">
                 {!loadingStakeButton ? "Stake MATIC" : "Waiting"}
             </button>
         )
+    }
+
+    const IsStakingOrWaitingOnTransaction = () => {
+        const loadingStakeAction = loadingStakeButton;
+        if (loadingStakeAction) {
+            return <WaitingStakeMaticButton/>
+        } else {
+            return <StakeMaticButton/>
+        }
     }
 
     useEffect(() => {
@@ -141,7 +158,7 @@ const StakeBox = () => {
                         :
                     <input
                         disabled
-                        className="token-input-amount"
+                        className="token-input-amount-disabled"
                         type="number"
                         placeholder="Enter MATIC to stake"
                         onChange={(e) => setStakeMaticAmount(e.target.value)}
@@ -151,7 +168,7 @@ const StakeBox = () => {
                 
             </div>
 
-            {defaultAccount ? StakeMaticButton() : ConnectWalletButton()}
+            {signerInjected ? <IsStakingOrWaitingOnTransaction/> : <ConnectWalletButton/>}
             
             {defaultAccount 
                 ? 
@@ -162,6 +179,10 @@ const StakeBox = () => {
                 </div>
                 <div>
                     <h5 className="remove-margin-bottom">Wallet MATIC Balance</h5>
+                    <p className="remove-margin">{accountMaticBalance}</p>
+                </div>
+                <div>
+                    <h5 className="remove-margin-bottom">Wallet WMATIC Balance</h5>
                     <p className="remove-margin">{accountMaticBalance}</p>
                 </div>
             </>
