@@ -50,6 +50,7 @@
 }
 
 .token-input-amount-disabled {
+    display: none;
     margin-top: 1rem;
     margin-bottom: 1rem;
     padding: 15px;

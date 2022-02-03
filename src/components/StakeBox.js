@@ -58,8 +58,6 @@ const StakeBox = () => {
             
             setAccountMaticBalance(balance)
             setAccountWMATICBalance(balanceWMATIC)
-        } else {
-            alert("No authorized wallet found, please connect it");
         }
     }
 
@@ -79,15 +77,23 @@ const StakeBox = () => {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
 
+            // Load WMATIC from provider
+            const wmaticContract = new ethers.Contract(WMATICContract, wmatic, provider);
+
+            // Store in state provider and signer
             setProviderInjected(provider)
             setSignerInjected(signer)
 
+            // Fetch Wallet MATIC Balance
             const balanceBN = await provider.getBalance(await signer.getAddress())
-            const balance =  ethers.utils.formatEther(balanceBN)
+            const balance = ethers.utils.formatEther(balanceBN)
+
+            // Fetch Wallet WMATIC balance
+            const balanceWMATICBN = await wmaticContract.balanceOf(signer.getAddress())
+            const balanceWMATIC = ethers.utils.formatEther(balanceWMATICBN)
             
             setAccountMaticBalance(balance)
-
-            console.log("Found an account! Address: ", accounts[0]);
+            setAccountWMATICBalance(balanceWMATIC)
         } catch (err) {
             console.log(err)
         }
@@ -192,29 +198,32 @@ const StakeBox = () => {
         <>
         <div className="stake-box main-app">
 
+            {defaultAccount ?  
+            <>
+            <div>
+                <h5 className="remove-margin-bottom">Wallet Connected</h5>
+                <p className="remove-margin">{defaultAccount}</p>
+            </div>
+
+            <div>
+                <h5 className="remove-margin-bottom">Wallet MATIC Balance</h5>
+                <p className="remove-margin">{accountMaticBalance}</p>
+            </div>
+
+            <div>
+                <h5 className="remove-margin-bottom">Wallet WMATIC Balance</h5>
+                <p className="remove-margin">{accountWMATICBalance}</p>
+            </div>
+            </>
+
+            :
+            
+            <h5>No Wallet Connted</h5>}
+
             <InputStakeMatic/>
 
             {signerInjected ? <IsStakingOrWaitingOnTransaction/> : <ConnectWalletButton/>}
             
-            {defaultAccount 
-                ? 
-            <>
-                <div>
-                    <h5 className="remove-margin-bottom">Wallet Connected</h5>
-                    <p className="remove-margin">{defaultAccount}</p>
-                </div>
-                <div>
-                    <h5 className="remove-margin-bottom">Wallet MATIC Balance</h5>
-                    <p className="remove-margin">{accountMaticBalance}</p>
-                </div>
-                <div>
-                    <h5 className="remove-margin-bottom">Wallet WMATIC Balance</h5>
-                    <p className="remove-margin">{accountWMATICBalance}</p>
-                </div>
-            </>
-                :
-            <h5>No Wallet Connted</h5>
-            }
             <p>User MATIC Staked: 10</p>
             <p>Total MATIC Staked: 20</p>
         </div>
