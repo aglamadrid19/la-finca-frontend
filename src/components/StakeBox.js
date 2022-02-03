@@ -1,8 +1,9 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect} from 'react'
+import ReactDOM from "react-dom";
 import {ethers} from 'ethers'
 import wmatic from '../contracts/WMATIC.json'
 
-const StakeBox = () => {
+export default function StakeBox() {
 
     const userAddress = "0x3984Cb100038b143e28b2145c9F826fcC0580e26"
     const WMATICContract = "0x5E19FEc10978e1a7E136Cb0e323A68592ECDc141"
@@ -10,8 +11,8 @@ const StakeBox = () => {
     const [defaultAccount, setDefaultAccount] = useState("");
     const [accountMaticBalance, setAccountMaticBalance] = useState("")
 	const [accountWMATICBalance, setAccountWMATICBalance] = useState("")
-    const [stakeMaticAmount, setStakeMaticAmount] = useState("")
-    const [withdrawMaticAmount, setWithdrawMaticAmount] = useState("")
+    const [stakeMaticAmount, setStakeMaticAmount] = useState(undefined)
+    const [withdrawMaticAmount, setWithdrawMaticAmount] = useState(undefined)
 
 
     const [providerInjected, setProviderInjected] = useState(null)
@@ -157,82 +158,28 @@ const StakeBox = () => {
         )
     }
 
-    // Utils
-    const preventMinus = (e) => {
-        if (e.code === 'Minus') {
-            e.preventDefault();
-        }
-    };
-
-    const handleChangeInput = (e) => {
-        console.log(e.target.value)
-        setStakeMaticAmount(e.target.value)
-    }
-
     const InputStakeMatic = () => {
-        if (defaultAccount) {
-            return(
-                <input
-                    key={1}
-                    name='inputStake'
-                    type="number"
-                    min="0"
-                    id='inputStake'
-                    onKeyPress={preventMinus}
-                    className="token-input-amount"
-                    placeholder="Enter MATIC to stake"
-                    onChange={(e) => setStakeMaticAmount(e.target.value)}
-                    value={stakeMaticAmount}
-                />
-            )
-        } else {
-            return (
-                <input
-                    disabled
-                    className="token-input-amount-disabled"
-                    type="number"
-                    placeholder="Enter MATIC to stake"
-                    onChange={(e) => setStakeMaticAmount(e.target.value)}
-                    value={stakeMaticAmount}
-                />   
-            )
-        }
-    }
-    
-    const captureAndRefocus = (e) => {
-        setWithdrawMaticAmount(e.target.value)
-        document.getElementById("inputWithdraw").focus();
+
+        return(
+            <input
+                className="token-input-amount"
+                placeholder="Enter MATIC to stake"
+                onChange={(e) => setStakeMaticAmount(e.target.value)}
+                value={stakeMaticAmount}
+            >
+            </input>
+        )
     }
 
     const InputWithdrawMatic = () => {
-        if (defaultAccount) {
-            return(
-                <input
-                    key={2}
-                    // name='inputWithdraw'
-                    type="number"
-                    min="0"
-                    id='inputWithdraw'
-                    onKeyPress={preventMinus}
-                    className="token-input-amount"
-                    placeholder="Enter MATIC to withdraw"
-                    onChange={captureAndRefocus}
-                    // onChange={(e) => setWithdrawMaticAmount(e.target.value)}
-                    value={withdrawMaticAmount}
-                />
-            )
-        } else {
-            return (
-                <input
-                    disabled
-                    className="token-input-amount-disabled"
-                    type="number"
-                    placeholder="Enter MATIC to stake"
-                    onChange={(e) => setStakeMaticAmount(e.target.value)}
-                    value={stakeMaticAmount}
-                />   
-            )
-        }
+        return(
+            <input
+                className="token-input-amount"
+                placeholder="Enter MATIC to withdraw"
+                onChange={(e) => setWithdrawMaticAmount(e.target.value.toString())}
+                value={withdrawMaticAmount}
+            />
+        )
     }
 
     const StakeMaticButton = () => {
@@ -253,6 +200,7 @@ const StakeBox = () => {
 
 
     const WithdrawMaticButton = () => {
+
         return (
             <button onClick={withdrawMaticAction} className="cta-button stake-matic-button">
                 {!loadingWithdrawButton ? "Withdraw MATIC" : "Waiting"}
@@ -318,18 +266,16 @@ const StakeBox = () => {
             
             <h5>No Wallet Connected</h5>}
 
-            <InputStakeMatic/>
+            {defaultAccount ? <InputStakeMatic/> : null}
 
-            {signerInjected ? <IsStakingOrWaitingOnTransaction/> : <ConnectWalletButton/>}
+            {/* {signerInjected ? <IsStakingOrWaitingOnTransaction/> : <ConnectWalletButton/>}
 
-            <InputWithdrawMatic/>
+            {defaultAccount ? <InputWithdrawMatic/> : null} 
 
-            {signerInjected ? <IsWithdrawingOrWaitingOnTransaction/> : null}
+            {signerInjected ? <IsWithdrawingOrWaitingOnTransaction/> : null} */}
             
             {/* <p>Total MATIC Staked: 20</p> */}
         </div>
         </>
     )
 }
-
-export default StakeBox;
