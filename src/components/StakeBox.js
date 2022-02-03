@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import {ethers} from 'ethers'
 import wmatic from '../contracts/WMATIC.json'
 
@@ -11,11 +11,15 @@ const StakeBox = () => {
     const [accountMaticBalance, setAccountMaticBalance] = useState("")
 	const [accountWMATICBalance, setAccountWMATICBalance] = useState("")
     const [stakeMaticAmount, setStakeMaticAmount] = useState("")
+    const [withdrawMaticAmount, setWithdrawMaticAmount] = useState("")
+
 
     const [providerInjected, setProviderInjected] = useState(null)
     const [signerInjected, setSignerInjected] = useState(null)
 
     const [loadingStakeButton, setLoadingStakeButton] = useState(false)
+    const [loadingWithdrawButton, setLoadingWithdrawButton] = useState(false)
+
 
     const checkWalletIsConnected = async () => { 
         const {ethereum} = window;
@@ -99,7 +103,6 @@ const StakeBox = () => {
         }
     }
 
-
     const stakeMaticAction = async () => {
         setLoadingStakeButton(true)
         console.log(stakeMaticAmount)
@@ -120,6 +123,32 @@ const StakeBox = () => {
         }
     }
 
+    const withdrawMaticAction = async () => {
+        setLoadingWithdrawButton(true)
+        // console.log(withdrawMaticAction)
+        try {
+            // Load WMATIC from signer
+            // console.log(signerInjected)
+            const wmaticContract = new ethers.Contract(WMATICContract, wmatic, signerInjected);
+            
+            const tx = await wmaticContract.withdraw(ethers.utils.parseUnits(withdrawMaticAmount.toString()));
+            // const tx = await signerInjected.sendTransaction({
+            //     to: WMATICContract,
+            //     value: ethers.utils.parseEther(stakeMaticAmount.toString()),
+            // });
+            const receipt = await tx.wait()
+            console.log(receipt)
+            setLoadingWithdrawButton(false)
+            checkWalletIsConnected()
+        }
+        catch {
+            console.log("tx not sent")
+            // const price = window.ethersProvider.getGasPrice()
+            // console.log(price)
+            setLoadingWithdrawButton(false)
+        }
+    }
+
     const ConnectWalletButton = () => {
         return (
             <button onClick={connectWalletHandler} className="cta-button connect-wallet-button">
@@ -135,13 +164,20 @@ const StakeBox = () => {
         }
     };
 
+    const handleChangeInput = (e) => {
+        console.log(e.target.value)
+        setStakeMaticAmount(e.target.value)
+    }
+
     const InputStakeMatic = () => {
         if (defaultAccount) {
             return(
                 <input
+                    key={1}
+                    name='inputStake'
                     type="number"
                     min="0"
-                    autoFocus
+                    id='inputStake'
                     onKeyPress={preventMinus}
                     className="token-input-amount"
                     placeholder="Enter MATIC to stake"
@@ -162,13 +198,41 @@ const StakeBox = () => {
             )
         }
     }
+    
+    const captureAndRefocus = (e) => {
+        setWithdrawMaticAmount(e.target.value)
+        document.getElementById("inputWithdraw").focus();
+    }
 
-    const WaitingStakeMaticButton = () => {
-        return (
-            <button disabled onClick={stakeMaticAction} className="cta-button stake-matic-button-disabled">
-                {!loadingStakeButton ? "Stake MATIC" : "Waiting"}
-            </button>
-        )
+    const InputWithdrawMatic = () => {
+        if (defaultAccount) {
+            return(
+                <input
+                    key={2}
+                    // name='inputWithdraw'
+                    type="number"
+                    min="0"
+                    id='inputWithdraw'
+                    onKeyPress={preventMinus}
+                    className="token-input-amount"
+                    placeholder="Enter MATIC to withdraw"
+                    onChange={captureAndRefocus}
+                    // onChange={(e) => setWithdrawMaticAmount(e.target.value)}
+                    value={withdrawMaticAmount}
+                />
+            )
+        } else {
+            return (
+                <input
+                    disabled
+                    className="token-input-amount-disabled"
+                    type="number"
+                    placeholder="Enter MATIC to stake"
+                    onChange={(e) => setStakeMaticAmount(e.target.value)}
+                    value={stakeMaticAmount}
+                />   
+            )
+        }
     }
 
     const StakeMaticButton = () => {
@@ -179,12 +243,46 @@ const StakeBox = () => {
         )
     }
 
+    const WaitingStakeMaticButton = () => {
+        return (
+            <button disabled onClick={stakeMaticAction} className="cta-button stake-matic-button-disabled">
+                {!loadingStakeButton ? "Stake MATIC" : "Waiting"}
+            </button>
+        )
+    }
+
+
+    const WithdrawMaticButton = () => {
+        return (
+            <button onClick={withdrawMaticAction} className="cta-button stake-matic-button">
+                {!loadingWithdrawButton ? "Withdraw MATIC" : "Waiting"}
+            </button>
+        )
+    }
+
+    const WaitingWithdrawMaticButton = () => {
+        return (
+            <button disabled onClick={stakeMaticAction} className="cta-button stake-matic-button-disabled">
+                {!loadingWithdrawButton ? "Withdraw MATIC" : "Waiting"}
+            </button>
+        )
+    }
+
     const IsStakingOrWaitingOnTransaction = () => {
         const loadingStakeAction = loadingStakeButton;
         if (loadingStakeAction) {
             return <WaitingStakeMaticButton/>
         } else {
             return <StakeMaticButton/>
+        }
+    }
+
+    const IsWithdrawingOrWaitingOnTransaction = () => {
+        const loadingWithdrawAction = loadingWithdrawButton;
+        if (loadingWithdrawAction) {
+            return <WaitingWithdrawMaticButton/>
+        } else {
+            return <WithdrawMaticButton/>
         }
     }
 
@@ -218,14 +316,17 @@ const StakeBox = () => {
 
             :
             
-            <h5>No Wallet Connted</h5>}
+            <h5>No Wallet Connected</h5>}
 
             <InputStakeMatic/>
 
             {signerInjected ? <IsStakingOrWaitingOnTransaction/> : <ConnectWalletButton/>}
+
+            <InputWithdrawMatic/>
+
+            {signerInjected ? <IsWithdrawingOrWaitingOnTransaction/> : null}
             
-            <p>User MATIC Staked: 10</p>
-            <p>Total MATIC Staked: 20</p>
+            {/* <p>Total MATIC Staked: 20</p> */}
         </div>
         </>
     )

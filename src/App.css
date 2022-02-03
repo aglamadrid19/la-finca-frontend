@@ -15,17 +15,19 @@
 
 .connect-wallet-button {
     background: rgb(32, 129, 226);
+    margin-bottom: 1em;
 }
 
 .stake-box {
     text-align: center;
     margin: 0 auto;
     width: 75%;
+    margin-bottom: 1rem;
     /* height: 15rem; */
     /* width: 5em; */
-    border-style: solid;
+    /* border-style: solid;
     border-radius: 12px;
-    border-color: black;
+    border-color: black; */
 }
 
 .stake-matic-button {
