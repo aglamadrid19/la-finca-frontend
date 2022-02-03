@@ -104,7 +104,7 @@ const StakeBox = () => {
             });
             const receipt = await tx.wait()
             setLoadingStakeButton(false)
-            
+            checkWalletIsConnected()
         }
         catch {
             console.log("tx not sent")
@@ -120,6 +120,41 @@ const StakeBox = () => {
                 Connect Wallet
             </button>
         )
+    }
+
+    // Utils
+    const preventMinus = (e) => {
+        if (e.code === 'Minus') {
+            e.preventDefault();
+        }
+    };
+
+    const InputStakeMatic = () => {
+        if (defaultAccount) {
+            return(
+                <input
+                    type="number"
+                    min="0"
+                    autoFocus
+                    onKeyPress={preventMinus}
+                    className="token-input-amount"
+                    placeholder="Enter MATIC to stake"
+                    onChange={(e) => setStakeMaticAmount(e.target.value)}
+                    value={stakeMaticAmount}
+                />
+            )
+        } else {
+            return (
+                <input
+                    disabled
+                    className="token-input-amount-disabled"
+                    type="number"
+                    placeholder="Enter MATIC to stake"
+                    onChange={(e) => setStakeMaticAmount(e.target.value)}
+                    value={stakeMaticAmount}
+                />   
+            )
+        }
     }
 
     const WaitingStakeMaticButton = () => {
@@ -156,29 +191,8 @@ const StakeBox = () => {
     return (
         <>
         <div className="stake-box main-app">
-            <div>
-                {
-                    defaultAccount 
-                        ?
-                    <input
-                        className="token-input-amount"
-                        type="number"
-                        placeholder="Enter MATIC to stake"
-                        onChange={(e) => setStakeMaticAmount(e.target.value)}
-                        value={stakeMaticAmount}
-                    />
-                        :
-                    <input
-                        disabled
-                        className="token-input-amount-disabled"
-                        type="number"
-                        placeholder="Enter MATIC to stake"
-                        onChange={(e) => setStakeMaticAmount(e.target.value)}
-                        value={stakeMaticAmount}
-                    />   
-                }
-                
-            </div>
+
+            <InputStakeMatic/>
 
             {signerInjected ? <IsStakingOrWaitingOnTransaction/> : <ConnectWalletButton/>}
             
