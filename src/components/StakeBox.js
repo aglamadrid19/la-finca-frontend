@@ -6,11 +6,12 @@ const StakeBox = () => {
 
     const userAddress = "0x3984Cb100038b143e28b2145c9F826fcC0580e26"
     const WMATICContract = "0x5E19FEc10978e1a7E136Cb0e323A68592ECDc141"
-    const WMATIC_ABI = wmatic.abi
 
     const [defaultAccount, setDefaultAccount] = useState("");
     const [accountMaticBalance, setAccountMaticBalance] = useState("")
-	const [stakeMaticAmount, setStakeMaticAmount] = useState("")
+	const [accountWMATICBalance, setAccountWMATICBalance] = useState("")
+    const [stakeMaticAmount, setStakeMaticAmount] = useState("")
+
     const [providerInjected, setProviderInjected] = useState(null)
     const [signerInjected, setSignerInjected] = useState(null)
 
@@ -36,16 +37,27 @@ const StakeBox = () => {
             
             setDefaultAccount(account)
 
+            // Load provider and signer
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
 
+            // Load WMATIC from provider
+            const wmaticContract = new ethers.Contract(WMATICContract, wmatic, provider);
+
+            // Store in state provider and signer
             setProviderInjected(provider)
             setSignerInjected(signer)
 
+            // Fetch Wallet MATIC Balance
             const balanceBN = await provider.getBalance(await signer.getAddress())
-            const balance =  ethers.utils.formatEther(balanceBN)
+            const balance = ethers.utils.formatEther(balanceBN)
+
+            // Fetch Wallet WMATIC balance
+            const balanceWMATICBN = await wmaticContract.balanceOf(signer.getAddress())
+            const balanceWMATIC = ethers.utils.formatEther(balanceWMATICBN)
             
             setAccountMaticBalance(balance)
+            setAccountWMATICBalance(balanceWMATIC)
         } else {
             alert("No authorized wallet found, please connect it");
         }
@@ -183,7 +195,7 @@ const StakeBox = () => {
                 </div>
                 <div>
                     <h5 className="remove-margin-bottom">Wallet WMATIC Balance</h5>
-                    <p className="remove-margin">{accountMaticBalance}</p>
+                    <p className="remove-margin">{accountWMATICBalance}</p>
                 </div>
             </>
                 :
