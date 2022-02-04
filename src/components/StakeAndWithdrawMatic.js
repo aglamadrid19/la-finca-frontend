@@ -28,6 +28,13 @@ export default function StakeAndWithdrawMatic() {
         setWithdrawMaticAmount(e.target.value);
     };
 
+    // Utils input fields
+    const preventMinus = (e) => {
+        if (e.code === 'Minus') {
+            e.preventDefault();
+        }
+    };
+
     // Refresh balance utils
     const refreshBalances = async () => { 
         const accounts = await ethereum.request({method: 'eth_accounts'});
@@ -112,6 +119,7 @@ export default function StakeAndWithdrawMatic() {
             <p className="remove-margin">{accountMaticBalance}</p>
         </div>
         <input
+            onKeyPress={preventMinus}
             className="token-input-amount"
             type="number"
             value={stakeMaticAmount}
@@ -132,6 +140,7 @@ export default function StakeAndWithdrawMatic() {
             <p className="remove-margin">{accountWMATICBalance}</p>
         </div>
         <input
+            onKeyPress={preventMinus}
             className="token-input-amount"
             type="number"
             value={withdrawMaticAmount}
