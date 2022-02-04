@@ -51,7 +51,7 @@ export default function StakeMatic(props) {
             <button onClick={stakeMaticAction} className="cta-button stake-matic-button">
                 Stake MATIC
             </button> :
-            <button disabled onClick={stakeMaticAction} className="cta-button stake-matic-button-disabled">
+            <button disabled className="cta-button stake-matic-button-disabled">
                 Waiting
             </button>
         }

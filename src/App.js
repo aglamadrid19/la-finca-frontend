@@ -22,15 +22,10 @@ function App() {
     const [defaultAccount, setDefaultAccount] = useState("");
     const [accountMaticBalance, setAccountMaticBalance] = useState("")
 	const [accountWMATICBalance, setAccountWMATICBalance] = useState("")
-    // const [stakeMaticAmount, setStakeMaticAmount] = useState("")
-    // const [withdrawMaticAmount, setWithdrawMaticAmount] = useState("")
 
     // // Provider and Signer
     const [providerInjected, setProviderInjected] = useState(null)
     const [signerInjected, setSignerInjected] = useState(null)
-
-    
-    // const [loadingWithdrawButton, setLoadingWithdrawButton] = useState(false)
 
     // WALLET CONNECTION
     // Function to check for already connected wallet
@@ -114,49 +109,6 @@ function App() {
             console.log(err)
         }
     }
-
-    // TOKEN TRANSACTION
-    // Function to stake MATIC
-    // const stakeMaticAction = async () => {
-    //     setLoadingStakeButton(true)
-    //     console.log(stakeMaticAmount)
-    //     try {
-    //         const tx = await signerInjected.sendTransaction({
-    //             to: WMATICContract,
-    //             value: ethers.utils.parseEther(stakeMaticAmount.toString()),
-    //         });
-    //         const receipt = await tx.wait()
-    //         setLoadingStakeButton(false)
-    //         checkWalletIsConnected()
-    //     }
-    //     catch {
-    //         console.log("tx not sent")
-    //         // const price = window.ethersProvider.getGasPrice()
-    //         // console.log(price)
-    //         setLoadingStakeButton(false)
-    //     }
-    // }
-
-    // Function to Withdraw MATIC
-    // const withdrawMaticAction = async () => {
-    //     setLoadingWithdrawButton(true)
-
-    //     try {
-    //         const wmaticContract = new ethers.Contract(WMATICContract, wmatic_abi, signerInjected);
-            
-    //         const tx = await wmaticContract.withdraw(ethers.utils.parseUnits(withdrawMaticAmount.toString()));
-    //         const receipt = await tx.wait()
-    //         console.log(receipt)
-    //         setLoadingWithdrawButton(false)
-    //         checkWalletIsConnected()
-    //     }
-    //     catch {
-    //         console.log("tx not sent")
-    //         // const price = window.ethersProvider.getGasPrice()
-    //         // console.log(price)
-    //         setLoadingWithdrawButton(false)
-    //     }
-    // }
 
     // UI COMPONENTS
     // Connect Wallet Button
