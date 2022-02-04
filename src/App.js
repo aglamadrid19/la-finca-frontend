@@ -2,15 +2,14 @@
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 
+// Core Components
+import StakeAndWithdrawMatic from './components/StakeAndWithdrawMatic';
+
 // Core CSS
 import './App.css';
 
 // Contracts ABI
 import wmatic_abi from './contracts/WMATIC.json';
-
-// Core Components
-import StakeMatic from './components/StakeMatic';
-import WithdrawMatic from './components/WithdrawMatic';
 
 function App() {
 
@@ -20,12 +19,6 @@ function App() {
     // APP STATE
     // Account and Amount
     const [defaultAccount, setDefaultAccount] = useState("");
-    const [accountMaticBalance, setAccountMaticBalance] = useState("")
-	const [accountWMATICBalance, setAccountWMATICBalance] = useState("")
-
-    // // Provider and Signer
-    const [providerInjected, setProviderInjected] = useState(null)
-    const [signerInjected, setSignerInjected] = useState(null)
 
     // WALLET CONNECTION
     // Function to check for already connected wallet
@@ -46,28 +39,6 @@ function App() {
             console.log("Found an authorized account: ", account);
             
             setDefaultAccount(account)
-
-            // Load provider and signer
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const signer = provider.getSigner()
-
-            // Load WMATIC from provider
-            const wmaticContract = new ethers.Contract(WMATICContract, wmatic_abi, provider);
-
-            // Store in state provider and signer
-            setProviderInjected(provider)
-            setSignerInjected(signer)
-
-            // Fetch Wallet MATIC Balance
-            const balanceBN = await provider.getBalance(await signer.getAddress())
-            const balance = ethers.utils.formatEther(balanceBN)
-
-            // Fetch Wallet WMATIC balance
-            const balanceWMATICBN = await wmaticContract.balanceOf(signer.getAddress())
-            const balanceWMATIC = ethers.utils.formatEther(balanceWMATICBN)
-            
-            setAccountMaticBalance(balance)
-            setAccountWMATICBalance(balanceWMATIC)
         }
     }
 
@@ -81,30 +52,8 @@ function App() {
     
         try {
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-
             setDefaultAccount(accounts[0]);
 
-            // GET ACCOUNT Balance
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const signer = provider.getSigner()
-
-            // Load WMATIC from provider
-            const wmaticContract = new ethers.Contract(WMATICContract, wmatic_abi, provider);
-
-            // Store in state provider and signer
-            setProviderInjected(provider)
-            setSignerInjected(signer)
-
-            // Fetch Wallet MATIC Balance
-            const balanceBN = await provider.getBalance(await signer.getAddress())
-            const balance = ethers.utils.formatEther(balanceBN)
-
-            // Fetch Wallet WMATIC balance
-            const balanceWMATICBN = await wmaticContract.balanceOf(signer.getAddress())
-            const balanceWMATIC = ethers.utils.formatEther(balanceWMATICBN)
-            
-            setAccountMaticBalance(balance)
-            setAccountWMATICBalance(balanceWMATIC)
         } catch (err) {
             console.log(err)
         }
@@ -120,38 +69,14 @@ function App() {
         )
     }
 
-    
-
-    // // Withdraw MATIC input
-    // const InputWithdrawMatic = () => {
-    //     return(
-    //         <input
-    //             type="number"
-    //             className="token-input-amount"
-    //             placeholder="Enter MATIC to withdraw"
-    //             onChange={(e) => setWithdrawMaticAmount(e.target.value.toString())}
-    //             value={withdrawMaticAmount}
-    //         />
-    //     )
-    // }
-
-    // Stake MATIC Button
-    // const StakeMaticButton = () => {
-    //     return (
-    //         <button onClick={stakeMaticAction} className="cta-button stake-matic-button">
-    //             {!loadingStakeButton ? "Stake MATIC" : "Waiting"}
-    //         </button>
-    //     )
-    // }
-
-    // Withdraw MATIC Button
-    // const WithdrawMaticButton = () => {
-    //     return (
-    //         <button onClick={withdrawMaticAction} className="cta-button stake-matic-button">
-    //             {!loadingWithdrawButton ? "Withdraw MATIC" : "Waiting"}
-    //         </button>
-    //     )
-    // }
+    const WalletConnectedInfo = () => {
+        return (
+            <div>
+                <h5 className="remove-margin-bottom">Wallet Connected</h5>
+                <p className="remove-margin">{defaultAccount}</p>
+            </div>
+        )
+    }
 
     useEffect(() => {
         checkWalletIsConnected()
@@ -165,32 +90,11 @@ function App() {
             </div>
 
             <div className='stake-box main-app'>
-                {defaultAccount ?  
-                <>
-                <div>
-                    <h5 className="remove-margin-bottom">Wallet Connected</h5>
-                    <p className="remove-margin">{defaultAccount}</p>
-                </div>
-
-                <div>
-                    <h5 className="remove-margin-bottom">Wallet MATIC Balance</h5>
-                    <p className="remove-margin">{accountMaticBalance}</p>
-                </div>
-
-                <div>
-                    <h5 className="remove-margin-bottom">Wallet WMATIC Balance</h5>
-                    <p className="remove-margin">{accountWMATICBalance}</p>
-                </div>
-                </>
-
-                :
-            
-                <h5>No Wallet Connected</h5>}
+                {defaultAccount ? <WalletConnectedInfo></WalletConnectedInfo> : null}
             </div>
 
             <div className='stake-box main-app'>
-                {defaultAccount ? <StakeMatic signerInjected={signerInjected}></StakeMatic> : <ConnectWalletButton></ConnectWalletButton>}
-                {defaultAccount ? <WithdrawMatic signerInjected={signerInjected}></WithdrawMatic> : null}
+                {defaultAccount ? <StakeAndWithdrawMatic></StakeAndWithdrawMatic> : <ConnectWalletButton></ConnectWalletButton>}
             </div>
         </div>
         
