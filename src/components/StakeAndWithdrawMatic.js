@@ -35,6 +35,10 @@ export default function StakeAndWithdrawMatic() {
         }
     };
 
+    const disableScrollInput = (e) => {
+        e.target.blur()
+    }
+
     // Refresh balance utils
     const refreshBalances = async () => { 
         const accounts = await ethereum.request({method: 'eth_accounts'});
@@ -119,6 +123,7 @@ export default function StakeAndWithdrawMatic() {
             <p className="remove-margin">{accountMaticBalance}</p>
         </div>
         <input
+            onWheel={disableScrollInput}
             onKeyPress={preventMinus}
             className="token-input-amount"
             type="number"
@@ -140,6 +145,7 @@ export default function StakeAndWithdrawMatic() {
             <p className="remove-margin">{accountWMATICBalance}</p>
         </div>
         <input
+            onWheel={disableScrollInput}
             onKeyPress={preventMinus}
             className="token-input-amount"
             type="number"
