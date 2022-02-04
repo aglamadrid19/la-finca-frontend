@@ -7,9 +7,6 @@ const WMATICAddress = "0x5E19FEc10978e1a7E136Cb0e323A68592ECDc141"
 
 export default function StakeMatic(props) {
 
-    // Retrieve Props (signer)
-
-
     // State
     const [stakeMaticAmount, setStakeMaticAmount] = useState('');
     const [loadingStakeButton, setLoadingStakeButton] = useState(false)
@@ -54,7 +51,7 @@ export default function StakeMatic(props) {
             <button onClick={stakeMaticAction} className="cta-button stake-matic-button">
                 Stake MATIC
             </button> :
-            <button disabled onClick={stakeMaticAction} className="cta-button stake-matic-button">
+            <button disabled onClick={stakeMaticAction} className="cta-button stake-matic-button-disabled">
                 Waiting
             </button>
         }
