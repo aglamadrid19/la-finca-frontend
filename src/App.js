@@ -8,13 +8,7 @@ import StakeAndWithdrawMatic from './components/StakeAndWithdrawMatic';
 // Core CSS
 import './App.css';
 
-// Contracts ABI
-import wmatic_abi from './contracts/WMATIC.json';
-
 function App() {
-
-    // Static Addresses
-    const WMATICContract = "0x5E19FEc10978e1a7E136Cb0e323A68592ECDc141"
 
     // APP STATE
     // Account and Amount

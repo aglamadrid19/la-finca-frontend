@@ -3,10 +3,10 @@ import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 
 // Import ABI
-import wmatic_abi from '../contracts/WMATIC.json'
+import laFinca_abi from '../contracts/LaFinca.json'
 
 // Static Address
-const WMATICAddress = "0x5E19FEc10978e1a7E136Cb0e323A68592ECDc141"
+const LaFincaAddress = "0x5B1cA8860F7D72EBD2E08DABeD39045129764Fd9"
 
 export default function StakeAndWithdrawMatic() {
 
@@ -15,8 +15,11 @@ export default function StakeAndWithdrawMatic() {
     const [withdrawMaticAmount, setWithdrawMaticAmount] = useState('');
     const [loadingStakeButton, setLoadingStakeButton] = useState(false)
     const [loadingWithdrawButton, setLoadingWithdrawButton] = useState(false)
+    const [loadingRefreshAll, setLoadingRefreshAll] = useState(false)
+    const [loadingClaimButton, setLoadingClaimButton] = useState(false)
     const [accountMaticBalance, setAccountMaticBalance] = useState("")
     const [accountWMATICBalance, setAccountWMATICBalance] = useState("")
+    const [pendingMango, setPendingMango] = useState("0")
 
     // Utils for input field
     const handleChangeInput = (e) => {
@@ -40,11 +43,13 @@ export default function StakeAndWithdrawMatic() {
     }
 
     // Refresh balance utils
-    const refreshBalances = async () => { 
+    const refreshBalances = async () => {
+        setLoadingRefreshAll(true)
         const accounts = await ethereum.request({method: 'eth_accounts'});
     
         if (accounts.length !== 0) {
             const account = accounts[0];
+
             // Load provider and signer
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
@@ -54,15 +59,17 @@ export default function StakeAndWithdrawMatic() {
             const balance = ethers.utils.formatEther(balanceBN)
             setAccountMaticBalance(balance)
 
-            // Load WMATIC from provider
-            const wmaticContract = new ethers.Contract(WMATICAddress, wmatic_abi, provider);
+            // Fetch Pending Mango and WMATIC Balance
+            const LaFincaContract = new ethers.Contract(LaFincaAddress, laFinca_abi, signer)
 
-            // Fetch Wallet WMATIC balance
-            const balanceWMATICBN = await wmaticContract.balanceOf(signer.getAddress())
-            const balanceWMATIC = ethers.utils.formatEther(balanceWMATICBN)
-            
-            setAccountWMATICBalance(balanceWMATIC)
+            const pendingMango = await LaFincaContract.pendingReward(accounts[0])
+            setPendingMango(ethers.utils.formatEther(pendingMango))
+
+            const balanceWMATICBN = await LaFincaContract.userInfo(accounts[0])
+            setAccountWMATICBalance(ethers.utils.formatEther(balanceWMATICBN.amount))
         }
+
+        setLoadingRefreshAll(false)
     }
 
     // Function to stake MATIC
@@ -72,17 +79,18 @@ export default function StakeAndWithdrawMatic() {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
 
-            const tx = await signer.sendTransaction({
-                to: WMATICAddress,
-                value: ethers.utils.parseEther(stakeMaticAmount.toString()),
-            });
+            const LaFincaContract = new ethers.Contract(LaFincaAddress, laFinca_abi, signer)
+
+            const tx = await LaFincaContract.connect(signer).deposit({
+                value: ethers.utils.parseEther(stakeMaticAmount.toString())
+            })
+
             const receipt = await tx.wait()
+            console.log(receipt)
             setLoadingStakeButton(false)
         }
         catch {
             console.log("tx not sent")
-            // const price = window.ethersProvider.getGasPrice()
-            // console.log(price)
             setLoadingStakeButton(false)
         }
     }
@@ -95,20 +103,41 @@ export default function StakeAndWithdrawMatic() {
             // Load provider and signer
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
+
+            const LaFincaContract = new ethers.Contract(LaFincaAddress, laFinca_abi, signer)
+
+            const tx = await LaFincaContract.connect(signer).withdraw(ethers.utils.parseEther(withdrawMaticAmount.toString()))
             
-            const wmaticContract = new ethers.Contract(WMATICAddress, wmatic_abi, signer);
-            
-            const tx = await wmaticContract.withdraw(ethers.utils.parseUnits(withdrawMaticAmount.toString()));
             const receipt = await tx.wait()
             console.log(receipt)
             setLoadingWithdrawButton(false)
-            checkWalletIsConnected()
         }
         catch {
             console.log("tx not sent")
             // const price = window.ethersProvider.getGasPrice()
             // console.log(price)
             setLoadingWithdrawButton(false)
+        }
+    }
+
+    // Function to claim MANGO
+    const claimMangoAction = async () => {
+        setLoadingClaimButton(true)
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            const signer = provider.getSigner()
+
+            const LaFincaContract = new ethers.Contract(LaFincaAddress, laFinca_abi, signer)
+
+            const tx = await LaFincaContract.connect(signer).deposit()
+
+            const receipt = await tx.wait()
+            console.log(receipt)
+            setLoadingClaimButton(false)
+        }
+        catch {
+            console.log("tx not sent")
+            setLoadingClaimButton(false)
         }
     }
 
@@ -119,9 +148,24 @@ export default function StakeAndWithdrawMatic() {
   return (
     <div>
         <div>
+            
+            <h5 className="remove-margin-bottom">Pending Mango</h5>
+            <p className="remove-margin-top">{pendingMango}</p>
+            {
+            !loadingClaimButton ?
+            <button onClick={claimMangoAction} className="cta-button stake-matic-button">
+                Claim
+            </button> :
+            <button disabled className="cta-button stake-matic-button-disabled">
+                Waiting
+            </button>
+            }
+        </div>
+        <div>
             <h5 className="remove-margin-bottom">Wallet MATIC Balance</h5>
             <p className="remove-margin">{accountMaticBalance}</p>
         </div>
+    
         <input
             onWheel={disableScrollInput}
             onKeyPress={preventMinus}
@@ -140,8 +184,9 @@ export default function StakeAndWithdrawMatic() {
                 Waiting
             </button>
         }
+
         <div>
-            <h5 className="remove-margin-bottom">Wallet WMATIC Balance</h5>
+            <h5 className="remove-margin-bottom">Wallet MATIC Staked</h5>
             <p className="remove-margin">{accountWMATICBalance}</p>
         </div>
         <input
